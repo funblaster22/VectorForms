@@ -29,13 +29,10 @@ Also, see the [changelog](https://github.com/Kinto/kinto/blob/master/CHANGELOG.r
 5. Create/run a docker container
    ```bash
    # First run (only do this once)
-   docker run --env-file ./kinto.env -p 8888:8888 kinto/kinto-server
-   
-   # (optional) rename container
-   docker rename <OLD_NAME> <NEW_NAME>
+   docker run  --name formbuilder --env-file ./kinto.env -p 8888:8888 kinto/kinto-server
    
    # subsequent runs
-   docker start <NAME>
+   docker start formbuilder
    ```
 6. Make admin account
    ```bash
@@ -44,13 +41,7 @@ Also, see the [changelog](https://github.com/Kinto/kinto/blob/master/CHANGELOG.r
      -H 'Content-Type:application/json'
    ```
 7. Use [kinto admin](https://kinto.github.io/kinto-admin/) to make a new bucket called `formbuilder`
-8. Give anonymous users permission to create new collections
-   ```bash
-   curl -X PATCH   -H "Content-Type: application/json" \
-     -u admin:s3cr3t \
-     -d '{"permissions": {"collection:create": ["system.Everyone"]}}' \
-     http://localhost:8888/v1/buckets/formbuilder
-   ```
+8. [Give anonymous users permission](https://kinto.github.io/kinto-admin/#/buckets/formbuilder/permissions) to create new collections
 
 # Configuration
 
