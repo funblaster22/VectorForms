@@ -1,16 +1,8 @@
 Formbuilder
 ===========
 
-[![Build Status](https://travis-ci.org/Kinto/formbuilder.svg?branch=master)](https://travis-ci.org/Kinto/formbuilder)
-
 If you want to try it out, have a look [at the demo
 page](https://kinto.github.io/formbuilder/)
-
-Or deploy it on Scalingo in a single click on this button:
-
-[![Deploy to Scalingo](https://cdn.scalingo.com/deploy/button.svg)](https://my.scalingo.com/deploy)
-
-Scalingo offer a 1 month free trial then 7.20€ / month.
 
 # Installation
 
@@ -23,13 +15,42 @@ $ npm install
 $ npm run start  
 ```
 
-You also need to have a [Kinto](https://kinto.readthedocs.io) server **greater
-than 4.3.1** in order to store your data and **less than 11.0.0** for an out-of-the-box
-experience (when basicauth was removed by default). The latest version of Kinto
-at the time was **9.2.3**. If you don't already have Kinto, follow
-[the installation instructions](http://kinto.readthedocs.io/en/stable/tutorials/install.html).
-Also, see the [changelog](https://github.com/Kinto/kinto/blob/master/CHANGELOG.rst#1100-2018-10-09).
+# Server setup
 
+You need to have a [Kinto](https://kinto.readthedocs.io) server **greater
+than 4.3.1** in order to store your data. Despite what upstream says, version 18 worked just fine and is what I used. I strongly recommend docker + alwaysdata, but for here are
+[the installation instructions](http://kinto.readthedocs.io/en/stable/tutorials/install.html) for reference.
+Also, see the [changelog](https://github.com/Kinto/kinto/blob/master/CHANGELOG.rst#1100-2018-10-09). Here's what I did (it may not be the most optimal, but it worked)
+
+1. [Create a kinto project on alwaysdata](https://admin.alwaysdata.com/database/?type=postgresql)
+2. Copy `kinto.env.sample` to `kinto.env`
+3. Retrieve the postgreSQL credentials: [Open an SSH terminal](https://admin.alwaysdata.com/ssh/) and read the contents of `www/kinto/config/kinto.ini`.
+4. Copy the value of the line `kinto.storage_url = ` to `kinto.env` `KINTO_STORAGE_URL`
+5. Create/run a docker container
+   ```bash
+   # First run (only do this once)
+   docker run --env-file ./kinto.env -p 8888:8888 kinto/kinto-server
+   
+   # (optional) rename container
+   docker rename <OLD_NAME> <NEW_NAME>
+   
+   # subsequent runs
+   docker start <NAME>
+   ```
+6. Make admin account
+   ```bash
+   curl -X PUT http://localhost:8888/v1/accounts/admin \
+     -d '{"data": {"password": "s3cr3t"}}' \
+     -H 'Content-Type:application/json'
+   ```
+7. Use [kinto admin](https://kinto.github.io/kinto-admin/) to make a new bucket called `formbuilder`
+8. Give anonymous users permission to create new collections
+   ```bash
+   curl -X PATCH   -H "Content-Type: application/json" \
+     -u admin:s3cr3t \
+     -d '{"permissions": {"collection:create": ["system.Everyone"]}}' \
+     http://localhost:8888/v1/buckets/formbuilder
+   ```
 
 # Configuration
 
