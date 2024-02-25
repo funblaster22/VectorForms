@@ -25,7 +25,7 @@ Also, see the [changelog](https://github.com/Kinto/kinto/blob/master/CHANGELOG.r
 1. [Create a kinto project on alwaysdata](https://admin.alwaysdata.com/database/?type=postgresql)
 2. Copy `kinto.env.sample` to `kinto.env`
 3. Retrieve the postgreSQL credentials: [Open an SSH terminal](https://admin.alwaysdata.com/ssh/) and read the contents of `www/kinto/config/kinto.ini`.
-4. Copy the value of the line `kinto.storage_url = ` to `kinto.env` `KINTO_STORAGE_URL`
+4. Copy the value of the line `kinto.storage_url = ` to `kinto.env` `KINTO_*_URL`
 5. Create/run a docker container
    ```bash
    # First run (only do this once)
