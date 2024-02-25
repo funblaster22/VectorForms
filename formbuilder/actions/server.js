@@ -1,4 +1,4 @@
-import KintoClient from "kinto";
+import KintoClient from "kinto-http";
 import btoa from "btoa";
 import uuid from "uuid";
 
@@ -44,10 +44,10 @@ function getAuthenticationHeaders(token) {
  *   this function as the user is removed from the permissions.
  **/
 function initializeBucket() {
-  const api = new KintoClient({
-      remote: config.server.remote,
-      headers: getAuthenticationHeaders(uuid.v4())
-  });
+  const api = new KintoClient(
+    config.server.remote,
+    {headers: getAuthenticationHeaders(uuid.v4())}
+  );
   return api.createBucket(config.server.bucket, {
     safe: true,
     permissions: {
@@ -56,7 +56,8 @@ function initializeBucket() {
   }).then(() => {
     api.bucket(config.server.bucket).setPermissions({
       "write": []
-    });
+    },
+    {patch: true}); // Do a PATCH request to prevent everyone to be an admin.
   })
   .catch(() => {
     console.debug("Skipping bucket creation, it probably already exist.");
@@ -86,10 +87,10 @@ export function publishForm(callback) {
     const formID = getFormID(adminToken);
 
     // Create a client authenticated as the admin.
-    const bucket = new KintoClient({
-      remote: config.server.remote,
-      headers: getAuthenticationHeaders(adminToken)
-    }).bucket(config.server.bucket);
+    const bucket = new KintoClient(
+      config.server.remote,
+      {headers: getAuthenticationHeaders(adminToken)}
+    ).bucket(config.server.bucket);
 
     // The name of the collection is the user token so the user deals with
     // less different concepts.
@@ -139,8 +140,7 @@ export function submitRecord(record, collection, callback) {
     // Submit all form answers under a different users.
     // Later-on, we could persist these userid to let users change their
     // answers (but we're not quite there yet).
-    new KintoClient({
-      remote: config.server.remote,
+    new KintoClient(config.server.remote, {
       headers: getAuthenticationHeaders(uuid.v4())
     })
     .bucket(config.server.bucket)
@@ -160,8 +160,7 @@ export function submitRecord(record, collection, callback) {
 export function loadSchema(formID, callback, adminId) {
   return (dispatch, getState) => {
     dispatch({type: SCHEMA_RETRIEVAL_PENDING});
-    new KintoClient({
-      remote: config.server.remote,
+    new KintoClient(config.server.remote, {
       headers: getAuthenticationHeaders(adminId ? adminId : "EVERYONE")
     })
     .bucket(config.server.bucket)
@@ -190,8 +189,7 @@ export function getRecords(adminToken, callback) {
   return (dispatch, getState) => {
     const formID = getFormID(adminToken);
     dispatch({type: RECORDS_RETRIEVAL_PENDING});
-    new KintoClient({
-      remote: config.server.remote,
+    new KintoClient(config.server.remote, {
       headers: getAuthenticationHeaders(adminToken)
     })
     .bucket(config.server.bucket)
