@@ -16,6 +16,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(actionCreators, dispatch);
 }
 
+/** Container for the dropdown button for adding a new form question */
 export default connect(
   mapStateToProps,
   mapDispatchToProps

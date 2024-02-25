@@ -23,6 +23,7 @@ export default {
             title: {type: "string", title: "Label"},
             description: {type: "string", title: "Example value"},
             required: {type: "boolean"},
+            weight: {type: "string"},
           }
         },
       },
@@ -46,6 +47,7 @@ export default {
             title: {type: "string", title: "Label"},
             description: {type: "string", title: "Example value"},
             required: {type: "boolean"},
+            weight: {type: "string"},
           }
         },
       },
@@ -66,6 +68,7 @@ export default {
           properties: {
             title: {type: "string", title: "Label"},
             required: {type: "boolean"},
+            weight: {type: "string"},
           }
         },
       },
@@ -91,6 +94,7 @@ export default {
           properties: {
             title: {type: "string", title: "Label"},
             required: {type: "boolean"},
+            weight: {type: "string"},
             items: {
               type: "object",
               title: "Choices",
@@ -126,6 +130,7 @@ export default {
           properties: {
             title: {type: "string", title: "Label"},
             required: {type: "boolean"},
+            weight: {type: "string"},
             enum: {
               type: "array",
               title: "Options",
@@ -155,6 +160,7 @@ export default {
           properties: {
             title: {type: "string", title: "Label"},
             required: {type: "boolean"},
+            weight: {type: "string"},
             enum: {
               type: "array",
               title: "Options",
@@ -182,7 +188,8 @@ export default {
           type: "object",
           properties: {
             title: {type: "string", title: "Label"},
-            required: {type: "boolean"}
+            required: {type: "boolean"},
+            weight: {type: "string"},
           }
         },
       },

@@ -3,7 +3,7 @@ import FieldListDropdown from "./FieldListDropdown";
 import {Button, ButtonToolbar, ButtonGroup}  from "react-bootstrap";
 
 export default function FormActions(props) {
-  const onClick = (event) => {
+  const saveForm = (event) => {
     props.publishForm(({collection, adminToken}) => {
       props.history.pushState(null, `/builder/published/${adminToken}`);
     });
@@ -29,7 +29,7 @@ export default function FormActions(props) {
           <i className="glyphicon glyphicon-remove" />
           Reset <span className="hidden-xs">form</span>
         </Button>
-        <Button bsStyle="success" onClick={onClick}>
+        <Button bsStyle="success" onClick={saveForm}>
           <i className={`glyphicon glyphicon-${saveIconName}`} />
           Save your form
         </Button>
