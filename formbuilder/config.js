@@ -23,7 +23,7 @@ export default {
             title: {type: "string", title: "Label"},
             description: {type: "string", title: "Example value"},
             required: {type: "boolean"},
-            weight: {type: "string"},
+            weight: {type: "integer"},
           }
         },
       },
@@ -47,7 +47,7 @@ export default {
             title: {type: "string", title: "Label"},
             description: {type: "string", title: "Example value"},
             required: {type: "boolean"},
-            weight: {type: "string"},
+            weight: {type: "integer"},
           }
         },
       },
@@ -68,7 +68,7 @@ export default {
           properties: {
             title: {type: "string", title: "Label"},
             required: {type: "boolean"},
-            weight: {type: "string"},
+            weight: {type: "integer"},
           }
         },
       },
@@ -94,7 +94,7 @@ export default {
           properties: {
             title: {type: "string", title: "Label"},
             required: {type: "boolean"},
-            weight: {type: "string"},
+            weight: {type: "integer"},
             items: {
               type: "object",
               title: "Choices",
@@ -130,7 +130,7 @@ export default {
           properties: {
             title: {type: "string", title: "Label"},
             required: {type: "boolean"},
-            weight: {type: "string"},
+            weight: {type: "integer"},
             enum: {
               type: "array",
               title: "Options",
@@ -160,7 +160,7 @@ export default {
           properties: {
             title: {type: "string", title: "Label"},
             required: {type: "boolean"},
-            weight: {type: "string"},
+            weight: {type: "integer"},
             enum: {
               type: "array",
               title: "Options",
@@ -189,7 +189,7 @@ export default {
           properties: {
             title: {type: "string", title: "Label"},
             required: {type: "boolean"},
-            weight: {type: "string"},
+            weight: {type: "integer"},
           }
         },
       },
