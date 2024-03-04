@@ -76,24 +76,26 @@ export function publishForm(callback) {
 
     const form = getState().form;
     // TODO: don't clone, instead set this as initial form schema
-    const schema = clone(form.schema);
-    const uiSchema = clone(form.uiSchema);
+    const schema = form.schema;
+    const uiSchema = form.uiSchema;
+
+    // This just caused more issues than was worth, plus Kinto doesn't care about schema
 
     // Create members field. Not filled when submitting, but populated afterward
     // as per https://rjsf-team.github.io/react-jsonschema-form/docs/json-schema/arrays#uischema-for-array-items
-    schema.properties.members = {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-    };
-    uiSchema.members = {
-      // TODO: despite using hidden, still shows up. Might need to update
-      "ui:widget": "hidden",
-    };
-    uiSchema["ui:order"].push("members");
+    // schema.properties.members = {
+    //   "type": "array",
+    //   "items": [
+    //     {
+    //       "type": "string"
+    //     }
+    //   ],
+    // };
+    // uiSchema.members = {
+    //   // TODO: despite using hidden, still shows up. Might need to update
+    //   "ui:widget": "hidden",
+    // };
+    // uiSchema["ui:order"].push("members");
 
     // Remove the "required" property if it's empty.
     if (schema.required && schema.required.length === 0) {
