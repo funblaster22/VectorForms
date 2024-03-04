@@ -33,7 +33,7 @@ function slugify(string) {
   return S(string).slugify().replace("-", "_").s;
 }
 
-function clone(obj) {
+export function clone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 

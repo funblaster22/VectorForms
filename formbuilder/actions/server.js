@@ -5,6 +5,7 @@ import uuid from "uuid";
 import {addNotification} from "./notifications";
 import {getFormID} from "../utils";
 import config from "../config";
+import {clone} from "../reducers/form";
 
 
 export const FORM_PUBLISH = "FORM_PUBLISH";
@@ -74,8 +75,9 @@ export function publishForm(callback) {
   const thunk =  (dispatch, getState, retry = true) => {
 
     const form = getState().form;
-    const schema = form.schema;
-    const uiSchema = form.uiSchema;
+    // TODO: don't clone, instead set this as initial form schema
+    const schema = clone(form.schema);
+    const uiSchema = clone(form.uiSchema);
 
     // Create members field. Not filled when submitting, but populated afterward
     // as per https://rjsf-team.github.io/react-jsonschema-form/docs/json-schema/arrays#uischema-for-array-items
@@ -88,9 +90,9 @@ export function publishForm(callback) {
       ],
     };
     uiSchema.members = {
+      // TODO: despite using hidden, still shows up. Might need to update
       "ui:widget": "hidden",
     };
-    // TODO: need to submit twice for this to work
     uiSchema["ui:order"].push("members");
 
     // Remove the "required" property if it's empty.
