@@ -19,8 +19,8 @@ export function getFormID(adminToken) {
  * be something we want to pass rather than relying on it being globally
  * available.
  **/
-export function getFormURL(formID) {
-  return `${config.appURL}#/form/${formID}`;
+export function getFormURL(id) {
+  return `${config.appURL}#/form/${id}`;
 }
 
 export function getFormEditURL(adminID) {

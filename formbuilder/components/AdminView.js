@@ -9,7 +9,7 @@ import {DropdownButton, MenuItem}  from "react-bootstrap";
 export default class AdminView extends Component {
   componentDidMount() {
     const adminToken = this.props.params.adminToken;
-    this.formID = getFormID(adminToken);
+    this.formID = adminToken;
     this.props.getRecords(adminToken);
     this.props.loadSchema(this.formID);
   }

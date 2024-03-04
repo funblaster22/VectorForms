@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import ClipboardButton from "react-clipboard.js";
-import {getFormID, getFormURL, getFormEditURL, getAdminURL} from "../utils";
+import {getAdminURL, getFormEditURL, getFormURL} from "../utils";
 import URLDisplay from "./URLDisplay";
 
 export default class FormCreated extends Component {
@@ -17,9 +17,7 @@ export default class FormCreated extends Component {
 
   render() {
     const adminToken = this.props.params.adminToken;
-    const formID = getFormID(adminToken);
-
-    const userformURL = getFormURL(formID);
+    const userformURL = getFormURL(adminToken);
     const userformEditURL = getFormEditURL(adminToken);
     const adminURL = getAdminURL(adminToken);
 

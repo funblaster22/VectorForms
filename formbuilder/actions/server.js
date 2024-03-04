@@ -84,7 +84,6 @@ export function publishForm(callback) {
 
     dispatch({type: FORM_PUBLICATION_PENDING});
     const adminToken = uuid.v4().replace(/-/g, "");
-    const formID = getFormID(adminToken);
 
     // Create a client authenticated as the admin.
     const bucket = new KintoClient(
@@ -94,7 +93,7 @@ export function publishForm(callback) {
 
     // The name of the collection is the user token so the user deals with
     // less different concepts.
-    bucket.createCollection(formID, {
+    bucket.createCollection(adminToken, {
       data: {schema, uiSchema},
       permissions: {
         "record:create": ["system.Authenticated"]
