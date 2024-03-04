@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import config from "../config";
 import {clone} from "../reducers/form";
+import {setState} from "react-jsonschema-form/lib/utils";
 
 /**
  * A vector containing either number literals or flattened encoding of string
@@ -8,10 +9,29 @@ import {clone} from "../reducers/form";
  */
 
 export default class RecordCreated extends Component {
-  componentDidMount() {
+  state = {
+    // Numeric representation of this.props.records
+    recordsVec: [],
+    // Array of length `recordsVec` that encodes the weight for each respective dimension in `recordsVec`
+    weights: [],
+  }
+
+  constructor(props) {
+    super(props);
+
     // Issue #130 - Change title back to project name after submitting the form
     document.title = config.projectName;
+  }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.records.length !== this.props.records.length && this.props.schema) {
+      Promise.all(
+        this.props.records.map(record => this.dictToVec(record, this.props.uiSchema["ui:order"], this.props.schema.weights))
+      ).then(recordsVec => this.setState({recordsVec: recordsVec.flat()}))
+    }
+  }
+
+  componentDidMount() {
     const adminToken = this.props.params.formId;
     this.formID = adminToken;
     this.props.getRecords(adminToken);
@@ -41,21 +61,33 @@ export default class RecordCreated extends Component {
    * @param keyorder {(keyof T)[]}
    */
   dictToVec(dict, keyorder, weights={}) {
-    /** @type {Vector} */
     const valueVec = [];
-    /** @type {Vector} */
     const weightVec = [];
     for (const key in keyorder) {
       const val = dict[key];
+      const weight = weights[key] ? weights[key] : 1;
       if (typeof val === "number") {
-        valueVec.push(val);
-        weightVec.push(weights[key] ? weights[key] : 1);  // TODO: upgrade js to use `??`
+        valueVec.push(Promise.resolve(val));
+        weightVec.push(Promise.resolve(weight));  // TODO: upgrade js to use `??`
+      } else if (typeof val === "string") {
+        // Tokenizer doesn't return fixed size array
+        const wordEmbedding = use.load()
+          .then(model => {
+            return model.embed([val])
+              .then(embeddings => {
+                console.log(embeddings.arraySync()[0]);
+                return embeddings.arraySync()[0];
+              });
+          })
+          .catch(err => console.error("Fit Error:", err));
+        valueVec.push(wordEmbedding);
+        weightVec.push(wordEmbedding.then(embeddings => Array(embeddings.length).fill(weight)));
       } else {
-        // TODO: encode strings
-        console.warn(typeof val, "not yet supported");
+        throw typeof val + "not yet supported";
       }
     }
-    return [valueVec, weightVec];
+    Promise.all(weightVec).then(weights => setState({weights: weights.flat()}));  // This will fire many times, but should be same so nothing happens TODO: fix
+    return Promise.all(valueVec);
   }
 
   render() {
@@ -72,15 +104,20 @@ export default class RecordCreated extends Component {
     if (records.length === 1) {
       return <p>You're the first person to complete this form! Check back later to form your team.</p>;
     }
-    const [mySubmissionVec, weights] = this.dictToVec(records.splice(mySubmissionIdx, 1)[0], schemaFields, this.props.schema.weights);
+    if (this.state.recordsVec.length === 0)
+      return <p>Loading...</p>;
+    const mySubmissionVec = this.state.recordsVec[mySubmissionIdx];
 
-    // TODO: a heap is probably better
-    for (const record of records) {
-      record.similarity = this.euclideanDistance(mySubmissionVec, this.dictToVec(record, schemaFields)[0], weights);
+    for (let recordIdx=0; recordIdx < records.length; recordIdx++) {
+      if (recordIdx === mySubmissionIdx)
+        continue;
+      const record = records[recordIdx];
+      const recordVec = this.state.recordsVec[recordIdx];
+      record.similarity = this.euclideanDistance(mySubmissionVec, recordVec, this.state.weights);
     }
     records.sort((a, b) => a.similarity - b.similarity);
 
-    console.log(records, weights);
+    console.log(records, this.state.weights);
 
     let content = "loading";
     if (ready) {
