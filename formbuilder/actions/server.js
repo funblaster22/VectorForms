@@ -77,6 +77,22 @@ export function publishForm(callback) {
     const schema = form.schema;
     const uiSchema = form.uiSchema;
 
+    // Create members field. Not filled when submitting, but populated afterward
+    // as per https://rjsf-team.github.io/react-jsonschema-form/docs/json-schema/arrays#uischema-for-array-items
+    schema.properties.members = {
+      "type": "array",
+      "items": [
+        {
+          "type": "string"
+        }
+      ],
+    };
+    uiSchema.members = {
+      "ui:widget": "hidden",
+    };
+    // TODO: need to submit twice for this to work
+    uiSchema["ui:order"].push("members");
+
     // Remove the "required" property if it's empty.
     if (schema.required && schema.required.length === 0) {
       delete schema.required;

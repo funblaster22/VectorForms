@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Form from "react-jsonschema-form";
 import config from "../config";
+import {getUid} from "../util/login";
 
 export default class UserForm extends Component {
   componentDidMount() {
@@ -15,6 +16,7 @@ export default class UserForm extends Component {
   render() {
     const origin = window.location.origin + window.location.pathname;
     const onSubmit = ({formData}) => {
+      formData.id = getUid();
       this.props.submitRecord(formData, this.props.params.id, () => {
         this.props.history.pushState(null, "/form/data-sent");
       });

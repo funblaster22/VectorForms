@@ -102,7 +102,7 @@ $ curl $SERVER_URL/buckets/formbuilder/collections/$FORM_ID/records \
 # Architecture of the project
 
 The formbuilder is based on top of React and the [react-jsonschema-form (rjsf)](https://github.com/mozilla-services/react-jsonschema-form)
-library.
+library. It might help to also familiarize yourself with [JSON schema](https://json-schema-editor.tangramjs.com/editor.html#/).
 
 It is also using [redux](https://github.com/reactjs/react-redux) to handle
 the state and dispatch actions. If you're not familiar with it, don't worry,
