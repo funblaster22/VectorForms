@@ -40,7 +40,7 @@ Also, see the [changelog](https://github.com/Kinto/kinto/blob/master/CHANGELOG.r
      -d '{"data": {"password": "s3cr3t"}}' \
      -H 'Content-Type:application/json'
    ```
-7. Use [kinto admin](https://kinto.github.io/kinto-admin/) to make a new bucket called `formbuilder`
+7. Use [kinto admin](https://kinto.github.io/kinto-admin/) to make two new buckets called `formbuilder` and `requests` (TODO: make this automatic)
 8. [Give anonymous users permission](https://kinto.github.io/kinto-admin/#/buckets/formbuilder/permissions) to create new collections
 
 # Configuration

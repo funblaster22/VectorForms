@@ -6,6 +6,7 @@ import {addNotification} from "./notifications";
 import {getFormID} from "../utils";
 import config from "../config";
 import {clone} from "../reducers/form";
+import {getUid} from "../util/login";
 
 
 export const FORM_PUBLISH = "FORM_PUBLISH";
@@ -49,13 +50,13 @@ function initializeBucket() {
     config.server.remote,
     {headers: getAuthenticationHeaders(uuid.v4())}
   );
-  return api.createBucket(config.server.bucket, {
+  return api.createBucket(config.server.bucket.forms, {
     safe: true,
     permissions: {
       "collection:create": ["system.Authenticated",]
     }
   }).then(() => {
-    api.bucket(config.server.bucket).setPermissions({
+    api.bucket(config.server.bucket.forms).setPermissions({
       "write": []
     },
     {patch: true}); // Do a PATCH request to prevent everyone to be an admin.
@@ -109,7 +110,7 @@ export function publishForm(callback) {
     const bucket = new KintoClient(
       config.server.remote,
       {headers: getAuthenticationHeaders(adminToken)}
-    ).bucket(config.server.bucket);
+    ).bucket(config.server.bucket.forms);
 
     // The name of the collection is the user token so the user deals with
     // less different concepts.
@@ -156,13 +157,17 @@ export function submitRecord(record, collection, callback) {
   return (dispatch, getState) => {
     dispatch({type: FORM_RECORD_CREATION_PENDING});
 
+    const client = new KintoClient(config.server.remote, {
+      headers: getAuthenticationHeaders(uuid.v4())
+    });
+
+    // TODO: make `requests` bucket if not exist
+
     // Submit all form answers under a different users.
     // Later-on, we could persist these userid to let users change their
     // answers (but we're not quite there yet).
-    new KintoClient(config.server.remote, {
-      headers: getAuthenticationHeaders(uuid.v4())
-    })
-    .bucket(config.server.bucket)
+    client
+    .bucket(config.server.bucket.forms)
     .collection(collection)
     .createRecord(record).then(({data}) => {
       dispatch({type: FORM_RECORD_CREATION_DONE});
@@ -173,6 +178,16 @@ export function submitRecord(record, collection, callback) {
     .catch((error) => {
       connectivityIssues(dispatch, "We were unable to publish your answers");
     });
+
+    client
+      .bucket(config.server.bucket.requests)
+      .createCollection(getUid(), {
+        // TODO: make JSON schema
+        // TODO: authenticate & restrict collections:create permission to only authenticated users
+        permissions: {
+          "record:create": ["system.Everyone"]
+        }
+      });
   };
 }
 
@@ -182,7 +197,7 @@ export function loadSchema(formID, callback, adminId) {
     new KintoClient(config.server.remote, {
       headers: getAuthenticationHeaders(adminId ? adminId : "EVERYONE")
     })
-    .bucket(config.server.bucket)
+    .bucket(config.server.bucket.forms)
     .collection(formID)
     .getData().then((data) => {
       dispatch({
@@ -211,7 +226,7 @@ export function getRecords(adminToken, callback) {
     new KintoClient(config.server.remote, {
       headers: getAuthenticationHeaders(adminToken)
     })
-    .bucket(config.server.bucket)
+    .bucket(config.server.bucket.forms)
     .collection(formID)
     .listRecords().then(({data}) => {
       dispatch({
