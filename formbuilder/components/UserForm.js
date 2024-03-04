@@ -17,8 +17,9 @@ export default class UserForm extends Component {
     const origin = window.location.origin + window.location.pathname;
     const onSubmit = ({formData}) => {
       formData.id = getUid();
-      this.props.submitRecord(formData, this.props.params.id, () => {
-        this.props.history.pushState(null, "/form/data-sent");
+      const formId = this.props.params.id;
+      this.props.submitRecord(formData, formId, () => {
+        this.props.history.pushState(null, "/form/matches/" + formId);
       });
     };
     return (<div className="narrow">

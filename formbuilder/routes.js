@@ -86,8 +86,8 @@ export default (
         components={{...common, sidebarComponent: BackAndDownloadJSONSchema, content: JsonViewContainer}} />
       <Route path="builder/published/:adminToken"
         components={{...common, sidebarComponent: BackAndCheck, content: FormCreatedContainer}} />
-      <Route path="form/data-sent"
-        components={{...common, sidebarComponent: Check, content: RecordCreatedContainer}} />
+      <Route path="form/matches/:formId"
+        components={{...common, sidebarComponent: null, header: null, content: RecordCreatedContainer}} />
       <Route path="form/:id"
         components={{...common, mainComponent: UserFormContainer}} />
       <Route path="admin/:adminToken"

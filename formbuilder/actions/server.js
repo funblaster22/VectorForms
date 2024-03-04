@@ -209,6 +209,7 @@ export function loadSchema(formID, callback, adminId) {
       }
     })
     .catch((error) => {
+      console.error(error);
       connectivityIssues(dispatch, "We were unable to load your form");
     });
   };
@@ -221,13 +222,12 @@ export function loadSchema(formID, callback, adminId) {
  **/
 export function getRecords(adminToken, callback) {
   return (dispatch, getState) => {
-    const formID = getFormID(adminToken);
     dispatch({type: RECORDS_RETRIEVAL_PENDING});
     new KintoClient(config.server.remote, {
       headers: getAuthenticationHeaders(adminToken)
     })
     .bucket(config.server.bucket.forms)
-    .collection(formID)
+    .collection(adminToken)
     .listRecords().then(({data}) => {
       dispatch({
         type: RECORDS_RETRIEVAL_DONE,
