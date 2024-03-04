@@ -24,6 +24,7 @@ if (process.env.NODE_ENV !== "production") {
     id: PropTypes.string,
     title: PropTypes.string,
     required: PropTypes.bool,
+    weight: PropTypes.number,
   };
 }
 

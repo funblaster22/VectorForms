@@ -43,10 +43,11 @@ class FieldPropertiesEditor extends Component {
   }
 
   render() {
-    const {schema, name, required, uiSchema, onCancel, onUpdate, onDelete} = this.props;
+    const {schema, name, required, weight, uiSchema, onCancel, onUpdate, onDelete} = this.props;
     const formData = {
       ...schema,
       required,
+      weight,
       ...this.state.editedSchema,
       name: this.state.name
     };
@@ -137,7 +138,7 @@ export default class EditableField extends Component {
     const schema = {...this.props.schema, ...updated};
     this.setState({edit: false, schema});
     this.props.updateField(
-      this.props.name, schema, formData.required, formData.title);
+      this.props.name, schema, formData.required, formData.weight, formData.title);
   }
 
   handleDelete(event) {

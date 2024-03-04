@@ -46,6 +46,8 @@ function addField(state, field) {
   state.currentIndex += 1;
   const name = `Question ${state.currentIndex}`;
   const _slug = slugify(name);
+  // It seems like setting uiSchema here has an effect, but doesn't persist
+  // field.uiSchema.editSchema.properties.weight.default = "form.js:49";
   state.schema.properties[_slug] = {...field.jsonSchema, title: name};
   state.uiSchema[_slug] = field.uiSchema;
   state.uiSchema["ui:order"] = (state.uiSchema["ui:order"] || []).concat(_slug);
@@ -73,7 +75,7 @@ function removeField(state, name) {
   return {...state, error: null};
 }
 
-function updateField(state, name, schema, required, newLabel) {
+function updateField(state, name, schema, required, weight, newLabel) {
   const existing = Object.keys(state.schema.properties);
   const newName = slugify(newLabel);
   if (name !== newName && existing.indexOf(newName) !== -1) {
@@ -83,6 +85,10 @@ function updateField(state, name, schema, required, newLabel) {
   }
   const requiredFields = state.schema.required || [];
   state.schema.properties[name] = schema;
+  if (!state.schema.weights) {
+    state.schema.weights = {};
+  }
+  state.schema.weights[newName] = weight;
   if (required) {
     // Ensure uniquely required field names
     state.schema.required = unique(requiredFields.concat(name));
@@ -162,8 +168,8 @@ export default function form(state = INITIAL_STATE, action) {
   case FIELD_REMOVE:
     return removeField(clone(state), action.name);
   case FIELD_UPDATE:
-    const {name, schema, required, newName} = action;
-    return updateField(clone(state), name, schema, required, newName);
+    const {name, schema, required, weight, newName} = action;
+    return updateField(clone(state), name, schema, required, weight, newName);
   case FIELD_INSERT:
     return insertField(clone(state), action.field, action.before);
   case FIELD_SWAP:
