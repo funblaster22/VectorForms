@@ -56,6 +56,29 @@ export default {
       formData: {}
     },
     {
+      id: "number",
+      icon: "text-color",
+      label: "Number",
+      jsonSchema: {
+        type: "number",
+        title: "Edit me",
+        description: "",
+        default: ""
+      },
+      uiSchema: {
+        editSchema: {
+          type: "object",
+          properties: {
+            title: {type: "string", title: "Label"},
+            description: {type: "string", title: "Example value"},
+            required: {type: "boolean"},
+            weight: {type: "integer"},
+          }
+        },
+      },
+      formData: {}
+    },
+    {
       id: "checkbox",
       icon: "check",
       label: "Checkbox",
