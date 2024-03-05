@@ -152,12 +152,12 @@ export function publishForm(callback) {
  * Submit a new form answer.
  * New credentials are created for each answer.
  **/
-export function submitRecord(record, collection, keyorder, callback) {
+export function submitRecord(record, collection, keyorder, schema, callback) {
   return async (dispatch, getState) => {
     dispatch({type: FORM_RECORD_CREATION_PENDING});
 
     record = clone(record);
-    record.vector = (await dictToVec(record, keyorder)
+    record.vector = (await dictToVec(record, keyorder, schema.properties)
       .catch(err =>
         connectivityIssues(dispatch, "Failed converting responses to vector")
       )).flat();

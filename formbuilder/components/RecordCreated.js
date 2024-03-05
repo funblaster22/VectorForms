@@ -46,7 +46,7 @@ export default class RecordCreated extends Component {
     }
     if (records.length > 0) {
       /** Array of length `recordsVec` that encodes the weight for each respective dimension in `recordsVec` */
-      const weights = expandWeights(myRecord, schemaFields, this.props.schema.weights);
+      const weights = expandWeights(myRecord, schemaFields, this.props.schema.weights, this.props.schema.properties);
 
       for (let recordIdx = 0; recordIdx < records.length; recordIdx++) {
         if (recordIdx === mySubmissionIdx) {
@@ -55,7 +55,8 @@ export default class RecordCreated extends Component {
         const record = records[recordIdx];
         record.similarity = euclideanDistance(myRecord.vector, record.vector, weights);
       }
-      records.sort((a, b) => b.similarity - a.similarity);
+      // Sort ascending (smaller = closer)
+      records.sort((a, b) => a.similarity - b.similarity);
     }
 
     let content = "loading";
@@ -74,7 +75,7 @@ export default class RecordCreated extends Component {
                   return <th key={key}>{properties[key].title}</th>;
                 })
               }
-              <th>Similarity</th>
+              <th>Dissimilarity</th>
               <th>Group</th>
             </tr>
             </thead>

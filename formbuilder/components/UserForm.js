@@ -18,7 +18,7 @@ export default class UserForm extends Component {
     const onSubmit = ({formData}) => {
       formData.id = getUid();
       const formId = this.props.params.id;
-      this.props.submitRecord(formData, formId, this.props.uiSchema["ui:order"], () => {
+      this.props.submitRecord(formData, formId, this.props.uiSchema["ui:order"], this.props.schema, () => {
         this.props.history.pushState(null, "/form/matches/" + formId);
       });
     };
