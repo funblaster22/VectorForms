@@ -3,6 +3,7 @@ var webpack = require("webpack");
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const serverURL = process.env.SERVER_URL || "https://kinto.notmyidea.org/v1/";
+const basePath = process.env.BASE_PATH || "/formbuilder/";
 
 module.exports = {
   devtool: "eval",
@@ -13,7 +14,7 @@ module.exports = {
   output: {
     path: path.join(__dirname, "build"),
     filename: "bundle.js",
-    publicPath: "/formbuilder/"
+    publicPath: basePath,
   },
   plugins: [
     new webpack.IgnorePlugin(/^(buffertools)$/), // unwanted "deeper" dependency
