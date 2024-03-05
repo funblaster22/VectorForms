@@ -4,7 +4,8 @@ import uuid from "uuid";
 
 import {addNotification} from "./notifications";
 import config from "../config";
-import {getUid} from "../util/login";
+import {clone} from "../reducers/form";
+import {dictToVec} from "../util/vec";
 
 
 export const FORM_PUBLISH = "FORM_PUBLISH";
@@ -151,9 +152,15 @@ export function publishForm(callback) {
  * Submit a new form answer.
  * New credentials are created for each answer.
  **/
-export function submitRecord(record, collection, callback) {
-  return (dispatch, getState) => {
+export function submitRecord(record, collection, keyorder, callback) {
+  return async (dispatch, getState) => {
     dispatch({type: FORM_RECORD_CREATION_PENDING});
+
+    record = clone(record);
+    record.vector = (await dictToVec(record, keyorder)
+      .catch(err =>
+        connectivityIssues(dispatch, "Failed converting responses to vector")
+      )).flat();
 
     // Submit all form answers under a different users.
     // Later-on, we could persist these userid to let users change their

@@ -3,6 +3,7 @@ import config from "../config";
 import {clone} from "../reducers/form";
 import {getUid} from "../util/login";
 import {addMember, dropMember} from "../actions/server";
+import {euclideanDistance, expandWeights} from "../util/vec";
 
 /**
  * A vector containing either number literals or flattened encoding of string
@@ -10,31 +11,11 @@ import {addMember, dropMember} from "../actions/server";
  */
 
 export default class RecordCreated extends Component {
-  state = {
-    // Numeric representation of this.props.records
-    recordsVec: [],
-    // Array of length `recordsVec` that encodes the weight for each respective dimension in `recordsVec`
-    weights: [],
-  }
-
   constructor(props) {
     super(props);
 
     // Issue #130 - Change title back to project name after submitting the form
     document.title = config.projectName;
-    this.fetchInitiated = false;
-    // eslint-disable-next-line no-undef
-    this.loadedUSE = use.load();
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    // TODO: There is definitely a better way to do this (redux) but I don't wanna deal with that
-    if (!this.fetchInitiated && this.props.records.length && this.props.uiSchema["ui:order"].length) {
-      this.fetchInitiated = true;
-      Promise.all(
-        this.props.records.map(record => this.dictToVec(record, this.props.uiSchema["ui:order"], this.props.schema.weights))
-      ).then(recordsVec => this.setState({recordsVec: recordsVec.flat()}));
-    }
   }
 
   componentDidMount() {
@@ -42,57 +23,6 @@ export default class RecordCreated extends Component {
     this.formID = adminToken;
     this.props.getRecords(adminToken);
     this.props.loadSchema(this.formID);
-  }
-
-  /**
-   * Compute the weighted Euclidean distance (sum of (vec1_n - vec2_n ) ^ 2) between two vectors
-   * @param vec1 {Vector}
-   * @param vec2 {Vector}
-   * @param weights {Vector} must be the same length as `vec1` & `vec2`
-   */
-  euclideanDistance(vec1, vec2, weights) {
-    console.assert(vec1.length === vec2.length);
-    let diffSquareSums = 0;
-    for (let idx=0; idx<vec1.length; idx++) {
-      diffSquareSums += weights[idx] * Math.pow(vec1[idx] - vec2[idx], 2);
-    }
-    return Math.sqrt(diffSquareSums);
-  }
-
-  /**
-   * Converts a dictionary to an array in the order specified by `keyorder`
-   * @template {Record<string, number | string>} T
-   * @param dict {T}
-   * @param weights {{[p: keyof T]: number | undefined}} If weight does not exist for key, defaults to `1`
-   * @param keyorder {(keyof T)[]}
-   */
-  dictToVec(dict, keyorder, weights={}) {
-    const valueVec = [];
-    const weightVec = [];
-    for (const key of keyorder) {
-      const val = dict[key];
-      const weight = weights[key] ? weights[key] : 1;
-      if (typeof val === "number") {
-        valueVec.push(Promise.resolve(val));
-        weightVec.push(Promise.resolve(weight));  // TODO: upgrade babel to use `??`
-      } else if (typeof val === "string") {
-        // Tokenizer doesn't return fixed-size array
-        const wordEmbedding = this.loadedUSE
-          .then(model => {
-            return model.embed([val])
-              .then(embeddings => {
-                return embeddings.arraySync()[0];
-              });
-          })
-          .catch(err => console.error("Fit Error:", err));
-        valueVec.push(wordEmbedding);
-        weightVec.push(wordEmbedding.then(embeddings => Array(embeddings.length).fill(weight)));
-      } else {
-        console.error(typeof val, "not yet supported", val);
-      }
-    }
-    Promise.all(weightVec).then(weights => this.setState({weights: weights.flat()}));  // This will fire many times, but should be same so nothing happens TODO: fix
-    return Promise.all(valueVec);
   }
 
   render() {
@@ -110,16 +40,16 @@ export default class RecordCreated extends Component {
     if (records.length === 1) {
       return <p>You're the first person to complete this form! Check back later to form your team.</p>;
     }
-    if (this.state.recordsVec.length > 0) {
-      const mySubmissionVec = this.state.recordsVec[mySubmissionIdx];
+    if (records.length > 0) {
+      /** Array of length `recordsVec` that encodes the weight for each respective dimension in `recordsVec` */
+      const weights = expandWeights(myRecord, schemaFields, this.props.schema.weights);
 
       for (let recordIdx = 0; recordIdx < records.length; recordIdx++) {
         if (recordIdx === mySubmissionIdx) {
           continue;
         }
         const record = records[recordIdx];
-        const recordVec = this.state.recordsVec[recordIdx];
-        record.similarity = this.euclideanDistance(mySubmissionVec, recordVec, this.state.weights);
+        record.similarity = euclideanDistance(myRecord.vector, record.vector, weights);
       }
       records.sort((a, b) => b.similarity - a.similarity);
     }
