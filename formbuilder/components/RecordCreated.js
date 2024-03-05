@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import config from "../config";
 import {clone} from "../reducers/form";
-import {Button} from "react-bootstrap";
+import {getUid} from "../util/login";
+import {addMember, dropMember} from "../actions/server";
 
 /**
  * A vector containing either number literals or flattened encoding of string
@@ -102,6 +103,7 @@ export default class RecordCreated extends Component {
     const schemaFields = this.props.uiSchema["ui:order"];
 
     const mySubmissionIdx = records.findIndex(record => record.id === localStorage.uid);
+    const myRecord = records[mySubmissionIdx];
     if (mySubmissionIdx === -1) {
       return <a href={"#/form/" + this.formID}>You have not yet filled out this form!</a>;
     }
@@ -144,6 +146,8 @@ export default class RecordCreated extends Component {
               if (idx === mySubmissionIdx) {
                 return;
               }
+              const inTheirMembers = record.members && record.members.includes(getUid());
+              const inMyMembers = myRecord.members && myRecord.members.includes(record.id);
               return (
                 <tr key={idx}>
                   {
@@ -152,9 +156,14 @@ export default class RecordCreated extends Component {
                   })}
                   <td>{record.similarity ? record.similarity : "loading..."}</td>
                   <td>
-                    <button type="button" onClick={console.log} className="btn btn-primary">
-                      Invite
-                    </button>
+                    {inMyMembers &&
+                    <button type="button" onClick={dropMember.bind(this, this.formID, record.id, myRecord)} className="btn">
+                      {inTheirMembers ? "Drop" : "Cancel Invitation"}
+                    </button>}
+                    {!inMyMembers &&
+                    <button type="button" onClick={addMember.bind(this, this.formID, record.id, myRecord)} className="btn btn-primary">
+                      {inTheirMembers ? "Accept & Join" : "Invite"}
+                    </button>}
                   </td>
                 </tr>
               );

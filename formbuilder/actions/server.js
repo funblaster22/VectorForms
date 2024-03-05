@@ -245,3 +245,66 @@ export function getRecords(adminToken, callback) {
     });
   };
 }
+
+function editResponse(formId, newRecord) {
+  return new KintoClient(config.server.remote, {
+    headers: getAuthenticationHeaders(uuid.v4())
+  })
+    .bucket(config.server.bucket.forms)
+    .collection(formId)
+    .updateRecord(newRecord)
+    .then(location.reload.bind(location));
+}
+
+/*async function getInviteId(formId, to, from) {
+  return formId + from;
+}
+
+export function inviteExists(formId, to, from) {
+  return new KintoClient(config.server.remote, {
+    headers: getAuthenticationHeaders(uuid.v4())
+  })
+    .bucket(config.server.bucket.requests)
+    .collection(to)
+    .getRecord(getInviteId(formId, to, from));
+}
+
+export function deleteInvite(formId, to, from) {
+  return new KintoClient(config.server.remote, {
+    headers: getAuthenticationHeaders(uuid.v4())
+  })
+    .bucket(config.server.bucket.requests)
+    .collection(to)
+    .deleteRecord(getInviteId(formId, to, from));
+}
+
+export function sendInvite(formId, to) {
+  const from = getUid();
+  return new KintoClient(config.server.remote, {
+    headers: getAuthenticationHeaders(uuid.v4())
+  })
+    .bucket(config.server.bucket.requests)
+    .collection(to)
+    .createRecord({
+      id: formId + from,
+      formId,
+      from
+    });
+}*/
+
+export function dropMember(formId, memberId, oldRecord) {
+  if (!oldRecord.members) {
+    return;
+  }
+  oldRecord.members.splice(oldRecord.members.indexOf(memberId), 1);
+  return editResponse(formId, oldRecord);
+}
+
+export function addMember(formId, memberId, oldRecord) {
+  if (!oldRecord.members) {
+    oldRecord.members = [memberId];
+  } else {
+    oldRecord.members.push(memberId);
+  }
+  return editResponse(formId, oldRecord);
+}
