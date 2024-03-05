@@ -237,6 +237,7 @@ function editResponse(formId, newRecord) {
     .bucket(config.server.bucket.forms)
     .collection(formId)
     .updateRecord(newRecord)
+    // TODO: gracefully update UI w/ redux instead of reloading
     .then(location.reload.bind(location));
 }
 

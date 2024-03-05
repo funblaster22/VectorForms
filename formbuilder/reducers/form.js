@@ -20,6 +20,21 @@ const INITIAL_STATE = {
     type: "object",
     title: "Untitled form",
     description: "Enter some description for your form here",
+    properties: {}
+  },
+  uiSchema: {
+    "ui:order": []
+  },
+  formData: {},
+  currentIndex: 0,
+};
+
+const EDITOR_INITIAL_STATE = {
+  error: null,
+  schema: {
+    type: "object",
+    title: "Untitled form",
+    description: "Enter some description for your form here",
     required: ["email"],
     weights: {
       email: 0,
@@ -52,7 +67,7 @@ const INITIAL_STATE = {
     }
   },
   formData: {},
-  currentIndex: 0,
+  currentIndex: 1,
 };
 
 function slugify(string) {
@@ -185,7 +200,10 @@ function setSchema(state, data) {
   return {...state, error: null};
 }
 
-export default function form(state = INITIAL_STATE, action) {
+export default function form(state = undefined, action) {
+  if (state === undefined) {
+    state = location.hash === "#/builder" ? EDITOR_INITIAL_STATE : INITIAL_STATE
+  }
   switch(action.type) {
   case FIELD_ADD:
     return addField(clone(state), action.field);
