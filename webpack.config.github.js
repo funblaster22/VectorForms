@@ -3,7 +3,7 @@ var webpack = require("webpack");
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const serverURL = process.env.SERVER_URL || "https://kinto.notmyidea.org/v1/";
-const basePath = process.env.BASE_PATH || "/VectorForms/";
+const basePath = process.env.BASE_PATH || "/formbuilder/";
 
 module.exports = {
   devtool: "eval",
