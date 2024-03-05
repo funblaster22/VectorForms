@@ -108,20 +108,19 @@ export default class RecordCreated extends Component {
     if (records.length === 1) {
       return <p>You're the first person to complete this form! Check back later to form your team.</p>;
     }
-    if (this.state.recordsVec.length === 0) {
-      return <p>Loading...</p>;
-    }
-    const mySubmissionVec = this.state.recordsVec[mySubmissionIdx];
+    if (this.state.recordsVec.length > 0) {
+      const mySubmissionVec = this.state.recordsVec[mySubmissionIdx];
 
-    for (let recordIdx=0; recordIdx < records.length; recordIdx++) {
-      if (recordIdx === mySubmissionIdx) {
-        continue;
+      for (let recordIdx = 0; recordIdx < records.length; recordIdx++) {
+        if (recordIdx === mySubmissionIdx) {
+          continue;
+        }
+        const record = records[recordIdx];
+        const recordVec = this.state.recordsVec[recordIdx];
+        record.similarity = this.euclideanDistance(mySubmissionVec, recordVec, this.state.weights);
       }
-      const record = records[recordIdx];
-      const recordVec = this.state.recordsVec[recordIdx];
-      record.similarity = this.euclideanDistance(mySubmissionVec, recordVec, this.state.weights);
+      records.sort((a, b) => b.similarity - a.similarity);
     }
-    records.sort((a, b) => b.similarity - a.similarity);
 
     let content = "loading";
     if (ready) {
@@ -151,7 +150,7 @@ export default class RecordCreated extends Component {
                   schemaFields.map((key) => {
                     return <td key={key}>{String(record[key])}</td>;
                   })}
-                  <td>{record.similarity}</td>
+                  <td>{record.similarity ? record.similarity : "loading..."}</td>
                   <td>
                     <button type="button" onClick={console.log} className="btn btn-primary">
                       Invite
