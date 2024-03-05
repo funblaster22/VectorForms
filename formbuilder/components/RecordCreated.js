@@ -25,6 +25,10 @@ export default class RecordCreated extends Component {
     this.props.loadSchema(this.formID);
   }
 
+  shouldntInclude(key) {
+    return this.props.schema.weights[key] === 0 || key === "email";
+  }
+
   render() {
     const properties = this.props.schema.properties;
     const title = this.props.schema.title;
@@ -64,6 +68,9 @@ export default class RecordCreated extends Component {
             <tr>
               {
                 schemaFields.map((key) => {
+                  if (this.shouldntInclude(key)) {
+                    return;
+                  }
                   return <th key={key}>{properties[key].title}</th>;
                 })
               }
@@ -82,18 +89,24 @@ export default class RecordCreated extends Component {
                 <tr key={idx}>
                   {
                   schemaFields.map((key) => {
+                    if (this.shouldntInclude(key)) {
+                      return;
+                    }
                     return <td key={key}>{String(record[key])}</td>;
                   })}
                   <td>{record.similarity ? record.similarity : "loading..."}</td>
                   <td>
                     {inMyMembers &&
-                    <button type="button" onClick={dropMember.bind(this, this.formID, record.id, myRecord)} className="btn">
-                      {inTheirMembers ? "Drop" : "Cancel Invitation"}
+                    <button type="button" onClick={dropMember.bind(this, this.formID, record.id, myRecord)} className="btn btn-primary">
+                      {inTheirMembers ? "Leave" : "Cancel Invitation"}
                     </button>}
                     {!inMyMembers &&
-                    <button type="button" onClick={addMember.bind(this, this.formID, record.id, myRecord)} className="btn btn-primary">
+                    <button type="button" onClick={addMember.bind(this, this.formID, record.id, myRecord)} className={`btn ${inTheirMembers ? "btn-primary" : ""}`}>
                       {inTheirMembers ? "Accept & Join" : "Invite"}
                     </button>}
+                    {(inMyMembers && inTheirMembers) &&
+                    <a href={"mailto:" + record.email} style={{marginLeft: "0.5em"}}>Contact</a>
+                    }
                   </td>
                 </tr>
               );
