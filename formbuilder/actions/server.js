@@ -3,9 +3,7 @@ import btoa from "btoa";
 import uuid from "uuid";
 
 import {addNotification} from "./notifications";
-import {getFormID} from "../utils";
 import config from "../config";
-import {clone} from "../reducers/form";
 import {getUid} from "../util/login";
 
 
@@ -157,16 +155,12 @@ export function submitRecord(record, collection, callback) {
   return (dispatch, getState) => {
     dispatch({type: FORM_RECORD_CREATION_PENDING});
 
-    const client = new KintoClient(config.server.remote, {
-      headers: getAuthenticationHeaders(uuid.v4())
-    });
-
-    // TODO: make `requests` bucket if not exist
-
     // Submit all form answers under a different users.
     // Later-on, we could persist these userid to let users change their
     // answers (but we're not quite there yet).
-    client
+    new KintoClient(config.server.remote, {
+      headers: getAuthenticationHeaders(uuid.v4())
+    })
     .bucket(config.server.bucket.forms)
     .collection(collection)
     .createRecord(record).then(({data}) => {
@@ -178,16 +172,6 @@ export function submitRecord(record, collection, callback) {
     .catch((error) => {
       connectivityIssues(dispatch, "We were unable to publish your answers");
     });
-
-    client
-      .bucket(config.server.bucket.requests)
-      .createCollection(getUid(), {
-        // TODO: make JSON schema
-        // TODO: authenticate & restrict collections:create permission to only authenticated users
-        permissions: {
-          "record:create": ["system.Everyone"]
-        }
-      });
   };
 }
 
@@ -255,42 +239,6 @@ function editResponse(formId, newRecord) {
     .updateRecord(newRecord)
     .then(location.reload.bind(location));
 }
-
-/*async function getInviteId(formId, to, from) {
-  return formId + from;
-}
-
-export function inviteExists(formId, to, from) {
-  return new KintoClient(config.server.remote, {
-    headers: getAuthenticationHeaders(uuid.v4())
-  })
-    .bucket(config.server.bucket.requests)
-    .collection(to)
-    .getRecord(getInviteId(formId, to, from));
-}
-
-export function deleteInvite(formId, to, from) {
-  return new KintoClient(config.server.remote, {
-    headers: getAuthenticationHeaders(uuid.v4())
-  })
-    .bucket(config.server.bucket.requests)
-    .collection(to)
-    .deleteRecord(getInviteId(formId, to, from));
-}
-
-export function sendInvite(formId, to) {
-  const from = getUid();
-  return new KintoClient(config.server.remote, {
-    headers: getAuthenticationHeaders(uuid.v4())
-  })
-    .bucket(config.server.bucket.requests)
-    .collection(to)
-    .createRecord({
-      id: formId + from,
-      formId,
-      from
-    });
-}*/
 
 export function dropMember(formId, memberId, oldRecord) {
   if (!oldRecord.members) {
