@@ -20,10 +20,36 @@ const INITIAL_STATE = {
     type: "object",
     title: "Untitled form",
     description: "Enter some description for your form here",
-    properties: {}
+    required: ["email"],
+    weights: {
+      email: 0,
+    },
+    properties: {
+      email: {
+        type: "string",
+        title: "Email",
+        // TODO: why the hell does this show up in "example value"??
+        // description: "Don't rename or delete",
+      },
+    },
   },
   uiSchema: {
-    "ui:order": []
+    "ui:order": ["email"],
+    email: {
+      "ui:options": {
+        inputType: "email"
+      },
+      // Copied from config.js TODO: dedupe
+      editSchema: {
+        type: "object",
+        properties: {
+          title: {type: "string", title: "Label"},
+          description: {type: "string", title: "Example value"},
+          required: {type: "boolean"},
+          weight: {type: "integer", default: 0},
+        }
+      },
+    }
   },
   formData: {},
   currentIndex: 0,
