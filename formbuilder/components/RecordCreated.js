@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import config from "../config";
 import {clone} from "../reducers/form";
-import {setState} from "react-jsonschema-form/lib/utils";
+import {Button} from "react-bootstrap";
 
 /**
  * A vector containing either number literals or flattened encoding of string
@@ -21,13 +21,18 @@ export default class RecordCreated extends Component {
 
     // Issue #130 - Change title back to project name after submitting the form
     document.title = config.projectName;
+    this.fetchInitiated = false;
+    // eslint-disable-next-line no-undef
+    this.loadedUSE = use.load();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.records.length !== this.props.records.length && this.props.schema) {
+    // TODO: There is definitely a better way to do this (redux) but I don't wanna deal with that
+    if (!this.fetchInitiated && this.props.records.length && this.props.uiSchema["ui:order"].length) {
+      this.fetchInitiated = true;
       Promise.all(
         this.props.records.map(record => this.dictToVec(record, this.props.uiSchema["ui:order"], this.props.schema.weights))
-      ).then(recordsVec => this.setState({recordsVec: recordsVec.flat()}))
+      ).then(recordsVec => this.setState({recordsVec: recordsVec.flat()}));
     }
   }
 
@@ -63,19 +68,18 @@ export default class RecordCreated extends Component {
   dictToVec(dict, keyorder, weights={}) {
     const valueVec = [];
     const weightVec = [];
-    for (const key in keyorder) {
+    for (const key of keyorder) {
       const val = dict[key];
       const weight = weights[key] ? weights[key] : 1;
       if (typeof val === "number") {
         valueVec.push(Promise.resolve(val));
-        weightVec.push(Promise.resolve(weight));  // TODO: upgrade js to use `??`
+        weightVec.push(Promise.resolve(weight));  // TODO: upgrade babel to use `??`
       } else if (typeof val === "string") {
-        // Tokenizer doesn't return fixed size array
-        const wordEmbedding = use.load()
+        // Tokenizer doesn't return fixed-size array
+        const wordEmbedding = this.loadedUSE
           .then(model => {
             return model.embed([val])
               .then(embeddings => {
-                console.log(embeddings.arraySync()[0]);
                 return embeddings.arraySync()[0];
               });
           })
@@ -83,10 +87,10 @@ export default class RecordCreated extends Component {
         valueVec.push(wordEmbedding);
         weightVec.push(wordEmbedding.then(embeddings => Array(embeddings.length).fill(weight)));
       } else {
-        throw typeof val + "not yet supported";
+        console.error(typeof val, "not yet supported", val);
       }
     }
-    Promise.all(weightVec).then(weights => setState({weights: weights.flat()}));  // This will fire many times, but should be same so nothing happens TODO: fix
+    Promise.all(weightVec).then(weights => this.setState({weights: weights.flat()}));  // This will fire many times, but should be same so nothing happens TODO: fix
     return Promise.all(valueVec);
   }
 
@@ -104,20 +108,20 @@ export default class RecordCreated extends Component {
     if (records.length === 1) {
       return <p>You're the first person to complete this form! Check back later to form your team.</p>;
     }
-    if (this.state.recordsVec.length === 0)
+    if (this.state.recordsVec.length === 0) {
       return <p>Loading...</p>;
+    }
     const mySubmissionVec = this.state.recordsVec[mySubmissionIdx];
 
     for (let recordIdx=0; recordIdx < records.length; recordIdx++) {
-      if (recordIdx === mySubmissionIdx)
+      if (recordIdx === mySubmissionIdx) {
         continue;
+      }
       const record = records[recordIdx];
       const recordVec = this.state.recordsVec[recordIdx];
       record.similarity = this.euclideanDistance(mySubmissionVec, recordVec, this.state.weights);
     }
-    records.sort((a, b) => a.similarity - b.similarity);
-
-    console.log(records, this.state.weights);
+    records.sort((a, b) => b.similarity - a.similarity);
 
     let content = "loading";
     if (ready) {
@@ -126,19 +130,35 @@ export default class RecordCreated extends Component {
           <h3>Matches for {title}</h3>
           <table className="table table-striped">
             <thead>
-            <tr>{
-              schemaFields.map((key) => {
-                return <th key={key}>{properties[key].title}</th>;
-              })
-            }</tr>
+            <tr>
+              {
+                schemaFields.map((key) => {
+                  return <th key={key}>{properties[key].title}</th>;
+                })
+              }
+              <th>Similarity</th>
+              <th>Group</th>
+            </tr>
             </thead>
             <tbody>
             {records.map((record, idx) => {
-              return (<tr key={idx}>{
-                schemaFields.map((key) => {
-                  return <td key={key}>{String(record[key])}</td>;
-                })}
-              </tr>);
+              if (idx === mySubmissionIdx) {
+                return;
+              }
+              return (
+                <tr key={idx}>
+                  {
+                  schemaFields.map((key) => {
+                    return <td key={key}>{String(record[key])}</td>;
+                  })}
+                  <td>{record.similarity}</td>
+                  <td>
+                    <button type="button" onClick={console.log} className="btn btn-primary">
+                      Invite
+                    </button>
+                  </td>
+                </tr>
+              );
             })}
             </tbody>
           </table>
