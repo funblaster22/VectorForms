@@ -32,11 +32,14 @@ function enumToVec(options, selected) {
  * @param dict {T}
  * @param keyorder {(keyof T)[]}
  */
-export function dictToVec(dict, keyorder, schemaProperties) {
+export function dictToVec(dict, keyorder, weights, schemaProperties) {
   const valueVec = [];
   for (const key of keyorder) {
     const val = dict[key];
     // I considered baking the weights into the vector, but this doesn't work for negative weights b/c since all are same, not really checking for difference
+    if (weights[key] === 0) {
+      continue;
+    }
     if (typeof val === "number") {
       valueVec.push(Promise.resolve(val));
     } else if (typeof val === "string") {
@@ -79,6 +82,9 @@ export function expandWeights(dict, keyorder, weights, schemaProperties) {
   for (const key of keyorder) {
     const val = dict[key];
     const weight = weights[key] ? weights[key] : 1;  // TODO: upgrade babel to use `??`
+    if (weight === 0) {
+      continue;
+    }
     let subLength = 0;
     if (typeof val === "number") {
       subLength = 1;

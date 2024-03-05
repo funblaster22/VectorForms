@@ -79,23 +79,14 @@ export function publishForm(callback) {
     const schema = form.schema;
     const uiSchema = form.uiSchema;
 
-    // This just caused more issues than was worth, plus Kinto doesn't care about schema
-
-    // Create members field. Not filled when submitting, but populated afterward
-    // as per https://rjsf-team.github.io/react-jsonschema-form/docs/json-schema/arrays#uischema-for-array-items
-    // schema.properties.members = {
-    //   "type": "array",
-    //   "items": [
-    //     {
-    //       "type": "string"
-    //     }
-    //   ],
-    // };
-    // uiSchema.members = {
-    //   // TODO: despite using hidden, still shows up. Might need to update
-    //   "ui:widget": "hidden",
-    // };
-    // uiSchema["ui:order"].push("members");
+    // TODO: set this in builder instead of hard-coding
+    if (schema.weights) {
+      schema.weights.email = 0;
+    } else {
+      schema.weights = {
+        email: 0,
+      };
+    }
 
     // Remove the "required" property if it's empty.
     if (schema.required && schema.required.length === 0) {
@@ -157,7 +148,7 @@ export function submitRecord(record, collection, keyorder, schema, callback) {
     dispatch({type: FORM_RECORD_CREATION_PENDING});
 
     record = clone(record);
-    record.vector = (await dictToVec(record, keyorder, schema.properties)
+    record.vector = (await dictToVec(record, keyorder, schema.weights, schema.properties)
       .catch(err =>
         connectivityIssues(dispatch, "Failed converting responses to vector")
       )).flat();
