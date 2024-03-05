@@ -1,0 +1,176 @@
+.spin {
+  -webkit-animation: spin 1s infinite linear;
+  -moz-animation: spin 1s infinite linear;
+  -o-animation: spin 1s infinite linear;
+  animation: spin 1s infinite linear;
+  -webkit-transform-origin: 50% 50%;
+  transform-origin: 50% 50%;
+  -ms-transform-origin: 50% 50%; /* IE 9 */
+}
+
+@-moz-keyframes spin {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Override default navbar
+   Prevent first form element dropdown menu to get out of the viewport */
+.navbar {
+  min-height: 8em;
+}
+
+.check {
+  font-size: 13em;
+  color: #455;
+  margin-left: 50px;
+}
+
+
+.editable-field {
+  padding: .5em 0;
+}
+
+.editable-field:hover {
+  background: #fafafa;
+  cursor: move;
+}
+
+.editable-field label:hover {
+  cursor: move;
+}
+
+.editable-field-actions {
+  text-align: right;
+  padding-left: 0;
+}
+
+.editable-field-actions button,
+button.close-btn {
+  background: none;
+  border: none;
+}
+
+.editable-field-actions button:last-child {
+  padding-right: 0;
+}
+
+form > p {
+  padding: 1em 0;
+}
+
+.field-editor .panel-heading {
+  padding: 0;
+}
+
+.field-editor .btn,
+.editable-field-actions .btn {
+  text-transform: none;
+}
+
+.editable-field-actions .btn {
+  padding: 0;
+  margin-left: 6px;
+}
+
+.editable-field-actions .btn:last {
+  margin-left: 0px;
+}
+
+.panel-heading .panel-title {
+  display: inline-block;
+  padding: 4px 16px;
+}
+
+textarea.json-viewer {
+  width: 100%;
+  height: 350px;
+  font-family: Consolas, "Ubuntu Mono", "Monaco", monospace;
+}
+
+.field-list-entry:hover {
+  background: #fafafa;
+  cursor: move;
+}
+
+.field-list-entry:active {
+  background: #F7F7F7;
+  box-shadow: inset 0 -2px 2px -2px rgba(0, 0, 0, .3);
+}
+
+.glyphicon + span {
+  margin-left: .5em;
+}
+
+.dropzone-active {
+  padding-bottom: 5em;
+  background-color: white;
+  outline: 2px dashed black;
+  outline-offset: -10px;
+  font-size: 1.25rem;
+  position: relative;
+  padding: 50px 20px;
+}
+
+.dropzone-active p{
+  text-align: center;
+  margin: auto;
+  height: 100px;
+}
+
+span.edit-in-place:hover {
+  cursor: pointer;
+}
+
+.edit-in-place:hover:not(:focus) {
+  text-decoration: underline;
+}
+
+.edit-in-place-active {
+  width: 500px;
+}
+
+.narrow {
+  max-width: 730px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.builder-form .panel {
+  margin-bottom: 0;
+}
+
+.builder-inner-actions {
+  margin-bottom: 30px;
+}
+
+.background {
+  background-image: url(/formbuilder/6bf8fc44564d66ed577ce8836a32b36c.jpg);
+  background-position: bottom;
+  color: white !important;
+}
+
+.background h1 {
+  color: white !important;
+}
