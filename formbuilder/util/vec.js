@@ -9,7 +9,7 @@ export function euclideanDistance(vec1, vec2, weights) {
   let diffSquareSums = 0;
   for (let idx=0; idx<vec1.length; idx++) {
     // Multiply one val by weight sign to optimize difference if negative
-    diffSquareSums += weights[idx] * Math.pow(vec1[idx] - vec2[idx] * Math.sign(weights[idx]), 2);
+    diffSquareSums += Math.pow(vec1[idx] - vec2[idx], 2);
   }
   return Math.sqrt(diffSquareSums);
 }
